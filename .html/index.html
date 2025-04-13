@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BBQ Takeaway</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#e53e3e',secondary:'#f97316'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+.weight-selector input[type="radio"] {
+display: none;
+}
+.weight-selector input[type="radio"] + label {
+cursor: pointer;
+padding: 0.5rem 0.75rem;
+border: 1px solid #e2e8f0;
+border-radius: 8px;
+transition: all 0.2s;
+}
+.weight-selector input[type="radio"]:checked + label {
+background-color: #e53e3e;
+color: white;
+border-color: #e53e3e;
+}
+.quantity-selector input[type="number"] {
+-webkit-appearance: none;
+-moz-appearance: textfield;
+appearance: none;
+margin: 0;
+}
+.spice-level {
+display: flex;
+align-items: center;
+}
+.spice-level span {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+margin-right: 3px;
+}
+.spice-level-1 span:nth-child(1) {
+background-color: #e53e3e;
+}
+.spice-level-2 span:nth-child(1),
+.spice-level-2 span:nth-child(2) {
+background-color: #e53e3e;
+}
+.spice-level-3 span {
+background-color: #e53e3e;
+}
+.cart-panel {
+transition: transform 0.3s ease;
+}
+@media (max-width: 1024px) {
+.cart-panel {
+transform: translateX(100%);
+}
+.cart-panel.open {
+transform: translateX(0);
+}
+}
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white shadow-md">
+<div class="container mx-auto px-4 py-3 flex items-center justify-between">
+<div class="flex items-center">
+<h1 class="text-2xl font-['Pacifico'] text-primary">The Barbecue House </h1>
+</div>
+<div class="relative w-1/3 hidden md:block">
+<div class="absolute inset-y-0 left-0 flex items-center pl-3">
+<div class="w-5 h-5 flex items-center justify-center text-gray-500">
+<i class="ri-search-line"></i>
+</div>
+</div>
+<input type="text" placeholder="Search for BBQ items..." class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 cursor-pointer hover:bg-gray-200 transition">
+<i class="ri-user-line text-gray-700"></i>
+</div>
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 cursor-pointer hover:bg-gray-200 transition relative" id="cart-toggle">
+<i class="ri-shopping-cart-2-line text-gray-700"></i>
+<span class="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">3</span>
+</div>
+</div>
+</div>
+<div class="container mx-auto px-4 py-2 flex items-center border-t border-gray-100">
+<div class="flex items-center text-sm text-gray-700">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-map-pin-line"></i>
+</div>
+<span>Deliver to: </span>
+<span class="font-medium ml-1">123 Main Street, City</span>
+<div class="w-5 h-5 flex items-center justify-center ml-1 text-primary">
+<i class="ri-arrow-down-s-line"></i>
+</div>
+</div>
+</div>
+</header>
+<!-- Search bar for mobile -->
+<div class="container mx-auto px-4 py-3 md:hidden">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 flex items-center pl-3">
+<div class="w-5 h-5 flex items-center justify-center text-gray-500">
+<i class="ri-search-line"></i>
+</div>
+</div>
+<input type="text" placeholder="Search for BBQ items..." class="w-full py-2 pl-10 pr-4 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+</div>
+<!-- Category Navigation -->
+<div class="container mx-auto px-4 py-3 overflow-x-auto hide-scrollbar">
+<div class="flex space-x-2 min-w-max">
+<button class="px-4 py-2 bg-primary text-white rounded-full text-sm font-medium !rounded-button whitespace-nowrap">All BBQ</button>
+<button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 !rounded-button whitespace-nowrap">Chicken Items</button>
+<button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 !rounded-button whitespace-nowrap">Fish Items</button>
+<button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 !rounded-button whitespace-nowrap">Prawns</button>
+<button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 !rounded-button whitespace-nowrap">Special Items</button>
+</div>
+</div>
+<!-- Filter and Sort -->
+<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+<div class="flex space-x-2">
+<div class="relative">
+<button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium flex items-center !rounded-button whitespace-nowrap">
+<span>Filter</span>
+<div class="w-4 h-4 flex items-center justify-center ml-1">
+<i class="ri-filter-3-line"></i>
+</div>
+</button>
+</div>
+<div class="relative">
+<button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium flex items-center !rounded-button whitespace-nowrap">
+<span>Sort by: Popular</span>
+<div class="w-4 h-4 flex items-center justify-center ml-1">
+<i class="ri-arrow-down-s-line"></i>
+</div>
+</button>
+</div>
+</div>
+<div class="text-sm text-gray-500">
+7 items
+</div>
+</div>
+<!-- Food Item Grid -->
+<div class="container mx-auto px-4 py-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Chicken Barbecue Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/9120f8efb53a16ea95ba5d9c37616ecc.jpg" alt="Chicken Barbecue" class="w-full h-full object-cover object-top">
+<div class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
+Best Seller
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-semibold">Chicken Barbecue</h3>
+<div class="flex items-center">
+<div class="text-xs text-gray-500 mr-2">Spice:</div>
+<div class="spice-level spice-level-2">
+<span></span>
+<span></span>
+<span class="bg-gray-300"></span>
+</div>
+</div>
+</div>
+<div class="text-sm text-gray-500 mb-3">
+Juicy chicken pieces marinated in special spices and grilled to perfection.
+</div>
+<div class="text-sm text-gray-600 flex items-center mb-4">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-time-line"></i>
+</div>
+<span>Prep time: 20-25 mins</span>
+</div>
+<div class="weight-selector flex flex-wrap gap-2 mb-4">
+<input type="radio" name="weight-1" id="weight-1-250" value="250" checked>
+<label for="weight-1-250" class="text-sm">250g - ₹100</label>
+<input type="radio" name="weight-1" id="weight-1-500" value="500">
+<label for="weight-1-500" class="text-sm">500g - ₹200</label>
+<input type="radio" name="weight-1" id="weight-1-750" value="750">
+<label for="weight-1-750" class="text-sm">750g - ₹300</label>
+<input type="radio" name="weight-1" id="weight-1-1000" value="1000">
+<label for="weight-1-1000" class="text-sm">1kg - ₹400</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-10 h-8 text-center border-none focus:outline-none text-sm">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium !rounded-button whitespace-nowrap">
+Add to Cart
+</button>
+</div>
+</div>
+</div>
+<!-- Fish Barbecue Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/c48b4cb3722df8bb71e3cd5edab05dae.jpg" alt="Fish Barbecue" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-semibold">Fish Barbecue</h3>
+<div class="flex items-center">
+<div class="text-xs text-gray-500 mr-2">Spice:</div>
+<div class="spice-level spice-level-1">
+<span></span>
+<span class="bg-gray-300"></span>
+<span class="bg-gray-300"></span>
+</div>
+</div>
+</div>
+<div class="text-sm text-gray-500 mb-3">
+Fresh fish marinated with aromatic herbs and spices, grilled to flaky perfection.
+</div>
+<div class="text-sm text-gray-600 flex items-center mb-4">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-time-line"></i>
+</div>
+<span>Prep time: 15-20 mins</span>
+</div>
+<div class="weight-selector flex flex-wrap gap-2 mb-4">
+<input type="radio" name="weight-2" id="weight-2-250" value="250" checked>
+<label for="weight-2-250" class="text-sm">250g - ₹100</label>
+<input type="radio" name="weight-2" id="weight-2-500" value="500">
+<label for="weight-2-500" class="text-sm">500g - ₹200</label>
+<input type="radio" name="weight-2" id="weight-2-750" value="750">
+<label for="weight-2-750" class="text-sm">750g - ₹300</label>
+<input type="radio" name="weight-2" id="weight-2-1000" value="1000">
+<label for="weight-2-1000" class="text-sm">1kg - ₹400</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-10 h-8 text-center border-none focus:outline-none text-sm">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium !rounded-button whitespace-nowrap">
+Add to Cart
+</button>
+</div>
+</div>
+</div>
+<!-- Chicken Sticks Barbecue Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/fe178cfd5000f3e97cfd4f24d3e2d525.jpg" alt="Chicken Sticks BBQ" class="w-full h-full object-cover object-top"><div class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
+Best Seller
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-semibold">Chicken Sticks BBQ</h3>
+<div class="flex items-center">
+<div class="text-xs text-gray-500 mr-2">Spice:</div>
+<div class="spice-level spice-level-3">
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+</div>
+<div class="text-sm text-gray-500 mb-3">
+Tender chicken pieces on skewers, marinated and grilled with our signature BBQ sauce.
+</div>
+<div class="text-sm text-gray-600 flex items-center mb-4">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-time-line"></i>
+</div>
+<span>Prep time: 25-30 mins</span>
+</div>
+<div class="weight-selector flex flex-wrap gap-2 mb-4">
+<input type="radio" name="weight-3" id="weight-3-250" value="250" checked>
+<label for="weight-3-250" class="text-sm">1 stick  - ₹50</label>
+
+</div>
+<div class="flex items-center justify-between">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-10 h-8 text-center border-none focus:outline-none text-sm">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium !rounded-button whitespace-nowrap">
+Add to Cart
+</button>
+</div>
+</div>
+</div>
+<!-- Prawns Barbecue Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/bc9dceaf314569f28e564fb06516effb.jpg" alt="Prawns BBQ" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-semibold">Prawns BBQ</h3>
+<div class="flex items-center">
+<div class="text-xs text-gray-500 mr-2">Spice:</div>
+<div class="spice-level spice-level-2">
+<span></span>
+<span></span>
+<span class="bg-gray-300"></span>
+</div>
+</div>
+</div>
+<div class="text-sm text-gray-500 mb-3">
+Succulent prawns marinated in garlic, herbs and spices, grilled to perfection.
+</div>
+<div class="text-sm text-gray-600 flex items-center mb-4">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-time-line"></i>
+</div>
+<span>Prep time: 15-20 mins</span>
+</div>
+<div class="weight-selector flex flex-wrap gap-2 mb-4">
+<input type="radio" name="weight-4" id="weight-4-250" value="250" checked>
+<label for="weight-4-250" class="text-sm">1 stick - ₹100</label>
+
+</div>
+<div class="flex items-center justify-between">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-10 h-8 text-center border-none focus:outline-none text-sm">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium !rounded-button whitespace-nowrap">
+Add to Cart
+</button>
+</div>
+</div>
+</div>
+<!-- Chicken Wings Barbecue Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/889d5aeea6a7a51dfaf2e58e4db8a913.jpg" alt="Chicken Wings BBQ" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-semibold">Chicken Wings BBQ</h3>
+<div class="flex items-center">
+<div class="text-xs text-gray-500 mr-2">Spice:</div>
+<div class="spice-level spice-level-3">
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+</div>
+<div class="text-sm text-gray-500 mb-3">
+Crispy chicken wings tossed in our special BBQ sauce, grilled to perfection.
+</div>
+<div class="text-sm text-gray-600 flex items-center mb-4">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-time-line"></i>
+</div>
+<span>Prep time: 20-25 mins</span>
+</div>
+<div class="weight-selector flex flex-wrap gap-2 mb-4">
+<input type="radio" name="weight-5" id="weight-5-250" value="250" checked>
+<label for="weight-5-250" class="text-sm">1 stick - ₹100</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-10 h-8 text-center border-none focus:outline-none text-sm">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium !rounded-button whitespace-nowrap">
+Add to Cart
+</button>
+</div>
+</div>
+</div>
+<!-- Chicken 65 Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/1a28148fadf685beebeb910246ecd005.jpg" alt="Chicken 65" class="w-full h-full object-cover object-top">
+<div class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded-full">
+Best Seller
+</div>
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-semibold">Chicken 65</h3>
+<div class="flex items-center">
+<div class="text-xs text-gray-500 mr-2">Spice:</div>
+<div class="spice-level spice-level-3">
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+</div>
+<div class="text-sm text-gray-500 mb-3">
+Spicy, deep-fried chicken flavored with ginger, garlic, and authentic Indian spices.
+</div>
+<div class="text-sm text-gray-600 flex items-center mb-4">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-time-line"></i>
+</div>
+<span>Prep time: 25-30 mins</span>
+</div>
+<div class="weight-selector flex flex-wrap gap-2 mb-4">
+<input type="radio" name="weight-6" id="weight-6-250" value="250" checked>
+<label for="weight-6-250" class="text-sm">250g - ₹100</label>
+<input type="radio" name="weight-6" id="weight-6-500" value="500">
+<label for="weight-6-500" class="text-sm">500g - ₹200</label>
+<input type="radio" name="weight-6" id="weight-6-750" value="750">
+<label for="weight-6-750" class="text-sm">750g - ₹300</label>
+<input type="radio" name="weight-6" id="weight-6-1000" value="1000">
+<label for="weight-6-1000" class="text-sm">1kg - ₹400</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-10 h-8 text-center border-none focus:outline-none text-sm">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium !rounded-button whitespace-nowrap">
+Add to Cart
+</button>
+</div>
+</div>
+</div>
+<!-- Fish Fry Card -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+<div class="relative h-48">
+<img src="https://public.readdy.ai/ai/img_res/1714fd48cf4beedc8013ac1cebeaf349.jpg" alt="Fish Fry" class="w-full h-full object-cover object-top">
+</div>
+<div class="p-4">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-semibold">Fish Fry</h3>
+<div class="flex items-center">
+<div class="text-xs text-gray-500 mr-2">Spice:</div>
+<div class="spice-level spice-level-2">
+<span></span>
+<span></span>
+<span class="bg-gray-300"></span>
+</div>
+</div>
+</div>
+<div class="text-sm text-gray-500 mb-3">
+Fresh fish marinated with traditional spices and deep-fried to a perfect crisp.
+</div>
+<div class="text-sm text-gray-600 flex items-center mb-4">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-time-line"></i>
+</div>
+<span>Prep time: 20-25 mins</span>
+</div>
+<div class="weight-selector flex flex-wrap gap-2 mb-4">
+<input type="radio" name="weight-7" id="weight-7-250" value="250" checked>
+<label for="weight-7-250" class="text-sm">250g - ₹100</label>
+<input type="radio" name="weight-7" id="weight-7-500" value="500">
+<label for="weight-7-500" class="text-sm">500g - ₹200</label>
+<input type="radio" name="weight-7" id="weight-7-750" value="750">
+<label for="weight-7-750" class="text-sm">750g - ₹300</label>
+<input type="radio" name="weight-7" id="weight-7-1000" value="1000">
+<label for="weight-7-1000" class="text-sm">1kg - ₹400</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-10 h-8 text-center border-none focus:outline-none text-sm">
+<button class="w-8 h-8 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium !rounded-button whitespace-nowrap">
+Add to Cart
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Cart Summary Panel -->
+<div class="cart-panel fixed top-0 right-0 h-full w-80 bg-white shadow-lg z-50 transform translate-x-full">
+<div class="p-4 border-b border-gray-200 flex justify-between items-center">
+<h2 class="text-lg font-semibold">Your Cart</h2>
+<button id="close-cart" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 lg:hidden">
+<i class="ri-close-line"></i>
+</button>
+</div>
+<div class="p-4 overflow-y-auto h-[calc(100%-180px)]">
+<!-- Cart Item 1 -->
+<div class="flex items-start space-x-3 mb-4 pb-4 border-b border-gray-100">
+<div class="w-16 h-16 rounded-lg overflow-hidden">
+<img src="https://public.readdy.ai/ai/img_res/7a4f4412497af128a6bafd7bb93007a5.jpg" alt="Chicken Sticks BBQ" class="w-full h-full object-cover">
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="text-sm font-medium">Chicken Sticks BBQ</h4>
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-delete-bin-line"></i>
+</button>
+</div>
+<div class="text-xs text-gray-500 mt-1">250g</div>
+<div class="flex justify-between items-center mt-2">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-8 h-6 text-center border-none focus:outline-none text-xs">
+<button class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<div class="text-sm font-medium">₹100</div>
+</div>
+</div>
+</div>
+<!-- Cart Item 2 -->
+<div class="flex items-start space-x-3 mb-4 pb-4 border-b border-gray-100">
+<div class="w-16 h-16 rounded-lg overflow-hidden">
+<img src="https://public.readdy.ai/ai/img_res/7ecdfef4f4f7226e41397241011af59f.jpg" alt="Chicken 65" class="w-full h-full object-cover">
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="text-sm font-medium">Chicken 65</h4>
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-delete-bin-line"></i>
+</button>
+</div>
+<div class="text-xs text-gray-500 mt-1">500g</div>
+<div class="flex justify-between items-center mt-2">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-8 h-6 text-center border-none focus:outline-none text-xs">
+<button class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<div class="text-sm font-medium">₹200</div>
+</div>
+</div>
+</div>
+<!-- Cart Item 3 -->
+<div class="flex items-start space-x-3 mb-4">
+<div class="w-16 h-16 rounded-lg overflow-hidden">
+<img src="https://public.readdy.ai/ai/img_res/c7bc7b2c558727c627b8f4a64fdf93cb.jpg" alt="Prawns BBQ" class="w-full h-full object-cover">
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="text-sm font-medium">Prawns BBQ</h4>
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-delete-bin-line"></i>
+</button>
+</div>
+<div class="text-xs text-gray-500 mt-1">250g</div>
+<div class="flex justify-between items-center mt-2">
+<div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+<button class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-subtract-line"></i>
+</button>
+<input type="number" value="1" min="1" class="w-8 h-6 text-center border-none focus:outline-none text-xs">
+<button class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200">
+<i class="ri-add-line"></i>
+</button>
+</div>
+<div class="text-sm font-medium">₹100</div>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
+<div class="space-y-2 mb-4">
+<div class="flex justify-between text-sm">
+<span class="text-gray-600">Subtotal</span>
+<span class="font-medium" id="cart-subtotal">₹400</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-gray-600">Delivery Fee</span>
+<span class="font-medium" id="delivery-fee">₹40</span>
+</div>
+<div class="flex justify-between text-sm font-medium pt-2 border-t border-gray-100">
+<span>Total</span>
+<span id="cart-total">₹440</span>
+</div>
+</div>
+<div class="text-xs text-gray-500 mb-3">
+Add special instructions
+<div class="w-4 h-4 inline-flex items-center justify-center ml-1">
+<i class="ri-pencil-line"></i>
+</div>
+</div>
+<button class="w-full py-3 bg-primary text-white rounded-lg font-medium !rounded-button whitespace-nowrap">
+Proceed to Checkout
+</button>
+</div>
+</div>
+<!-- Mobile Cart Toggle Button -->
+<div class="fixed bottom-4 right-4 lg:hidden z-40">
+<button id="mobile-cart-toggle" class="w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center">
+<i class="ri-shopping-cart-2-line text-xl"></i>
+<span class="absolute -top-1 -right-1 bg-white text-primary text-xs w-5 h-5 flex items-center justify-center rounded-full border-2 border-primary">3</span>
+</button>
+</div>
+<script>
+// Weight selector functionality
+document.querySelectorAll('.weight-selector input[type="radio"]').forEach(radio => {
+radio.addEventListener('change', function() {
+// You would update the price here based on the selected weight
+});
+});
+// Quantity selector functionality
+document.querySelectorAll('.quantity-selector button').forEach(button => {
+button.addEventListener('click', function() {
+const input = this.parentNode.querySelector('input');
+const currentValue = parseInt(input.value);
+if (this.querySelector('.ri-add-line')) {
+input.value = currentValue + 1;
+} else if (this.querySelector('.ri-subtract-line') && currentValue > 1) {
+input.value = currentValue - 1;
+}
+});
+});
+// Cart toggle functionality
+const mobileCartToggle = document.getElementById('mobile-cart-toggle');
+const cartToggle = document.getElementById('cart-toggle');
+const closeCart = document.getElementById('close-cart');
+const cartPanel = document.querySelector('.cart-panel');
+if (mobileCartToggle && closeCart && cartPanel) {
+  mobileCartToggle.addEventListener('click', function() {
+    cartPanel.classList.add('open');
+  });
+  
+  closeCart.addEventListener('click', function() {
+    cartPanel.classList.remove('open');
+  });
+}
+if (cartToggle) {
+  cartToggle.addEventListener('click', function() {
+    cartPanel.classList.toggle('open');
+  });
+}
+// Function to update cart totals
+function updateCartTotals() {
+  const cartItems = document.querySelectorAll('.cart-item');
+  let subtotal = 0;
+  
+  cartItems.forEach(item => {
+    const price = parseInt(item.getAttribute('data-price'));
+    const quantity = parseInt(item.querySelector('.cart-quantity').value);
+    subtotal += price * quantity;
+  });
+  
+  const deliveryFee = 40;
+  const total = subtotal + deliveryFee;
+  
+  document.getElementById('cart-subtotal').textContent = `₹${subtotal}`;
+  document.getElementById('cart-total').textContent = `₹${total}`;
+  
+  // Update cart count
+  const cartCount = document.querySelector('#cart-toggle span');
+  const mobileCartCount = document.querySelector('#mobile-cart-toggle span');
+  
+  if (cartItems.length === 0) {
+    cartCount.textContent = '0';
+    mobileCartCount.textContent = '0';
+  } else {
+    cartCount.textContent = cartItems.length.toString();
+    mobileCartCount.textContent = cartItems.length.toString();
+  }
+}
+// Delete cart item
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('delete-cart-item') || e.target.closest('.delete-cart-item')) {
+    const cartItem = e.target.closest('.cart-item');
+    if (cartItem) {
+      cartItem.remove();
+      updateCartTotals();
+    }
+  }
+});
+// Cart quantity change
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('cart-quantity-increase') || e.target.closest('.cart-quantity-increase')) {
+    const input = e.target.closest('.quantity-selector').querySelector('input');
+    const currentValue = parseInt(input.value);
+    input.value = currentValue + 1;
+    
+    // Update item price
+    const cartItem = e.target.closest('.cart-item');
+    const basePrice = parseInt(cartItem.getAttribute('data-price'));
+    const itemPriceElement = cartItem.querySelector('.item-price');
+    itemPriceElement.textContent = `₹${basePrice * (currentValue + 1)}`;
+    
+    updateCartTotals();
+  }
+  
+  if (e.target.classList.contains('cart-quantity-decrease') || e.target.closest('.cart-quantity-decrease')) {
+    const input = e.target.closest('.quantity-selector').querySelector('input');
+    const currentValue = parseInt(input.value);
+    if (currentValue > 1) {
+      input.value = currentValue - 1;
+      
+      // Update item price
+      const cartItem = e.target.closest('.cart-item');
+      const basePrice = parseInt(cartItem.getAttribute('data-price'));
+      const itemPriceElement = cartItem.querySelector('.item-price');
+      itemPriceElement.textContent = `₹${basePrice * (currentValue - 1)}`;
+      
+      updateCartTotals();
+    }
+  }
+});
+// Initialize cart totals
+updateCartTotals();
+// Category filter functionality
+document.querySelectorAll('.container .flex.space-x-2.min-w-max button').forEach(button => {
+button.addEventListener('click', function() {
+// Remove active class from all buttons
+document.querySelectorAll('.container .flex.space-x-2.min-w-max button').forEach(btn => {
+btn.classList.remove('bg-primary', 'text-white');
+btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+});
+// Add active class to clicked button
+this.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+this.classList.add('bg-primary', 'text-white');
+const category = this.textContent.trim();
+filterItems(category);
+});
+});
+function filterItems(category) {
+const items = document.querySelectorAll('.grid.grid-cols-1 > div');
+if (category === 'All BBQ') {
+items.forEach(item => {
+item.style.display = 'block';
+});
+document.querySelector('.text-sm.text-gray-500').textContent = '7 items';
+} else if (category === 'Chicken Items') {
+let count = 0;
+items.forEach(item => {
+const title = item.querySelector('h3').textContent.toLowerCase();
+if (title.includes('chicken')) {
+item.style.display = 'block';
+count++;
+} else {
+item.style.display = 'none';
+}
+});
+document.querySelector('.text-sm.text-gray-500').textContent = `${count} items`;
+} else if (category === 'Fish Items') {
+let count = 0;
+items.forEach(item => {
+const title = item.querySelector('h3').textContent.toLowerCase();
+if (title.includes('fish')) {
+item.style.display = 'block';
+count++;
+} else {
+item.style.display = 'none';
+}
+});
+document.querySelector('.text-sm.text-gray-500').textContent = `${count} items`;
+} else if (category === 'Prawns') {
+let count = 0;
+items.forEach(item => {
+const title = item.querySelector('h3').textContent.toLowerCase();
+if (title.includes('prawn')) {
+item.style.display = 'block';
+count++;
+} else {
+item.style.display = 'none';
+}
+});
+document.querySelector('.text-sm.text-gray-500').textContent = `${count} items`;
+} else if (category === 'Special Items') {
+let count = 0;
+items.forEach(item => {
+const bestSeller = item.querySelector('.bg-yellow-500');
+if (bestSeller) {
+item.style.display = 'block';
+count++;
+} else {
+item.style.display = 'none';
+}
+});
+document.querySelector('.text-sm.text-gray-500').textContent = `${count} items`;
+}
+}
+// Add to Cart functionality
+document.querySelectorAll('.px-4.py-2.bg-primary.text-white.rounded-lg').forEach(button => {
+  button.addEventListener('click', function() {
+    const card = this.closest('.bg-white.rounded-lg');
+    const title = card.querySelector('h3').textContent;
+    const weight = card.querySelector('.weight-selector input:checked').value;
+    const quantity = parseInt(card.querySelector('.quantity-selector input').value);
+    const price = parseInt(card.querySelector(`label[for="weight-${card.querySelector('.weight-selector input:checked').id.split('-')[2]}-${weight}"]`).textContent.split('₹')[1]);
+    const totalPrice = price * quantity;
+    
+    // Add item to cart
+    addItemToCart(title, weight, quantity, price, card.querySelector('img').src);
+    
+    // Show confirmation modal
+    showAddToCartConfirmation(title, weight, quantity, totalPrice);
+    
+    // Open cart panel
+    cartPanel.classList.add('open');
+  });
+});
+// Function to add item to cart
+function addItemToCart(title, weight, quantity, price, imgSrc) {
+  const cartItemsContainer = document.querySelector('.cart-panel .p-4.overflow-y-auto');
+  
+  // Check if item already exists in cart
+  const existingItems = cartItemsContainer.querySelectorAll('.cart-item');
+  for (let i = 0; i < existingItems.length; i++) {
+    const itemTitle = existingItems[i].querySelector('h4').textContent;
+    const itemWeight = existingItems[i].querySelector('.text-xs.text-gray-500').textContent;
+    
+    if (itemTitle === title && itemWeight === weight + 'g') {
+      // Item already exists, update quantity
+      const input = existingItems[i].querySelector('.cart-quantity');
+      const currentQuantity = parseInt(input.value);
+      input.value = currentQuantity + quantity;
+      
+      // Update price
+      const itemPriceElement = existingItems[i].querySelector('.item-price');
+      itemPriceElement.textContent = `₹${price * (currentQuantity + quantity)}`;
+      
+      updateCartTotals();
+      return;
+    }
+  }
+  
+  // Create new cart item
+  const cartItem = document.createElement('div');
+  cartItem.className = 'flex items-start space-x-3 mb-4 pb-4 border-b border-gray-100 cart-item';
+  cartItem.setAttribute('data-price', price);
+  
+  cartItem.innerHTML = `
+    <div class="w-16 h-16 rounded-lg overflow-hidden">
+      <img src="${imgSrc}" alt="${title}" class="w-full h-full object-cover">
+    </div>
+    <div class="flex-1">
+      <div class="flex justify-between">
+        <h4 class="text-sm font-medium">${title}</h4>
+        <button class="text-gray-400 hover:text-gray-600 delete-cart-item">
+          <i class="ri-delete-bin-line"></i>
+        </button>
+      </div>
+      <div class="text-xs text-gray-500 mt-1">${weight}g</div>
+      <div class="flex justify-between items-center mt-2">
+        <div class="quantity-selector flex items-center border border-gray-300 rounded-lg overflow-hidden">
+          <button class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200 cart-quantity-decrease">
+            <i class="ri-subtract-line"></i>
+          </button>
+          <input type="number" value="${quantity}" min="1" class="w-8 h-6 text-center border-none focus:outline-none text-xs cart-quantity">
+          <button class="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200 cart-quantity-increase">
+            <i class="ri-add-line"></i>
+          </button>
+        </div>
+        <div class="text-sm font-medium item-price">₹${price * quantity}</div>
+      </div>
+    </div>
+  `;
+  
+  // Add to cart
+  cartItemsContainer.appendChild(cartItem);
+  
+  // Update totals
+  updateCartTotals();
+}
+// Add to Cart confirmation modal
+function showAddToCartConfirmation(title, weight, quantity, price) {
+// Create modal container
+const modal = document.createElement('div');
+modal.className = 'fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50';
+// Create modal content
+modal.innerHTML = `
+<div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-semibold">Added to Cart</h3>
+<button class="close-modal w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+<i class="ri-close-line"></i>
+</button>
+</div>
+<div class="mb-4">
+<p class="text-sm text-gray-600 mb-2">${title} (${weight}g) x ${quantity}</p>
+<p class="font-medium">₹${price}</p>
+</div>
+<div class="flex space-x-3">
+<button class="close-modal flex-1 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium !rounded-button whitespace-nowrap">Continue Shopping</button>
+<button class="view-cart flex-1 py-2 bg-primary text-white rounded-lg font-medium !rounded-button whitespace-nowrap">View Cart</button>
+</div>
+</div>
+`;
+// Add modal to body
+document.body.appendChild(modal);
+// Add event listeners
+modal.querySelector('.close-modal').addEventListener('click', () => {
+document.body.removeChild(modal);
+});
+modal.querySelector('.view-cart').addEventListener('click', () => {
+document.body.removeChild(modal);
+cartPanel.classList.add('open');
+});
+}
+// Checkout functionality
+document.querySelector('.cart-panel .w-full.py-3.bg-primary').addEventListener('click', function() {
+  // Check if cart is empty
+  const cartItems = document.querySelectorAll('.cart-item');
+  if (cartItems.length === 0) {
+    showNotification('Your cart is empty. Please add items to proceed.', 'error');
+    return;
+  }
+  
+  showCheckoutModal();
+});
+// Checkout modal
+function showCheckoutModal() {
+// Create modal container
+const modal = document.createElement('div');
+modal.className = 'fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50';
+// Create modal content
+modal.innerHTML = `
+<div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-semibold">Checkout</h3>
+<button class="close-modal w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+<i class="ri-close-line"></i>
+</button>
+</div>
+<div class="mb-6">
+<h4 class="text-sm font-medium mb-3">Contact Information</h4>
+<div class="space-y-3">
+<div>
+<label class="block text-sm text-gray-600 mb-1">Full Name</label>
+<input type="text" id="customer-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter your full name">
+</div>
+<div>
+<label class="block text-sm text-gray-600 mb-1">Phone Number</label>
+<input type="tel" id="customer-phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter your phone number">
+</div>
+<div>
+<label class="block text-sm text-gray-600 mb-1">Email (Optional)</label>
+<input type="email" id="customer-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter your email">
+</div>
+</div>
+</div>
+<div class="mb-6">
+<h4 class="text-sm font-medium mb-3">Delivery Address</h4>
+<div class="space-y-3">
+<div>
+<label class="block text-sm text-gray-600 mb-1">Address</label>
+<input type="text" id="customer-address" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter your address">
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-sm text-gray-600 mb-1">City</label>
+<input type="text" id="customer-city" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="City">
+</div>
+<div>
+<label class="block text-sm text-gray-600 mb-1">Postal Code</label>
+<input type="text" id="customer-postal" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Postal Code">
+</div>
+</div>
+<div>
+<label class="block text-sm text-gray-600 mb-1">Delivery Instructions (Optional)</label>
+<textarea id="delivery-instructions" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Any special instructions for delivery" rows="2"></textarea>
+</div>
+</div>
+</div>
+<div class="mb-6">
+<h4 class="text-sm font-medium mb-3">Payment Method</h4>
+<div class="space-y-2">
+<label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer">
+<input type="radio" name="payment" value="cash" checked class="mr-3">
+<span class="text-sm">Cash on Delivery</span>
+</label>
+<label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer">
+<input type="radio" name="payment" value="online" class="mr-3">
+<span class="text-sm">Online Payment</span>
+</label>
+</div>
+</div>
+<div class="mb-6">
+<h4 class="text-sm font-medium mb-3">Order Summary</h4>
+<div class="space-y-2 text-sm">
+<div class="flex justify-between">
+<span class="text-gray-600">Subtotal</span>
+<span>₹400</span>
+</div>
+<div class="flex justify-between">
+<span class="text-gray-600">Delivery Fee</span>
+<span>₹40</span>
+</div>
+<div class="flex justify-between font-medium pt-2 border-t border-gray-100">
+<span>Total</span>
+<span>₹440</span>
+</div>
+</div>
+</div>
+<button id="place-order" class="w-full py-3 bg-primary text-white rounded-lg font-medium !rounded-button whitespace-nowrap">
+Place Order
+</button>
+</div>
+`;
+// Add modal to body
+document.body.appendChild(modal);
+// Add event listeners
+modal.querySelector('.close-modal').addEventListener('click', () => {
+document.body.removeChild(modal);
+});
+modal.querySelector('#place-order').addEventListener('click', () => {
+const customerName = document.getElementById('customer-name').value;
+const customerPhone = document.getElementById('customer-phone').value;
+const customerEmail = document.getElementById('customer-email').value;
+const customerAddress = document.getElementById('customer-address').value;
+const customerCity = document.getElementById('customer-city').value;
+const customerPostal = document.getElementById('customer-postal').value;
+const deliveryInstructions = document.getElementById('delivery-instructions').value;
+const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+// Validate required fields
+if (!customerName || !customerPhone || !customerAddress || !customerCity || !customerPostal) {
+showNotification('Please fill in all required fields', 'error');
+return;
+}
+// Get cart items
+const cartItems = [];
+document.querySelectorAll('.cart-panel .flex.items-start.space-x-3').forEach(item => {
+const title = item.querySelector('h4').textContent;
+const weight = item.querySelector('.text-xs.text-gray-500').textContent;
+const quantity = item.querySelector('input').value;
+const price = item.querySelector('.text-sm.font-medium').textContent;
+cartItems.push({
+title,
+weight,
+quantity,
+price
+});
+});
+// Create order object
+const order = {
+customer: {
+name: customerName,
+phone: customerPhone,
+email: customerEmail,
+address: `${customerAddress}, ${customerCity}, ${customerPostal}`,
+instructions: deliveryInstructions
+},
+items: cartItems,
+payment: paymentMethod,
+total: '₹440',
+orderDate: new Date().toLocaleString(),
+orderNumber: generateOrderNumber()
+};
+// Save order to localStorage (in a real app, this would be sent to a server)
+saveOrder(order);
+// Show order confirmation
+document.body.removeChild(modal);
+showOrderConfirmation(order);
+});
+}
+// Generate random order number
+function generateOrderNumber() {
+return 'BBQ' + Math.floor(100000 + Math.random() * 900000);
+}
+// Save order to localStorage
+function saveOrder(order) {
+let orders = JSON.parse(localStorage.getItem('bbqOrders')) || [];
+orders.push(order);
+localStorage.setItem('bbqOrders', JSON.stringify(orders));
+}
+// Show order confirmation
+function showOrderConfirmation(order) {
+// Create modal container
+const modal = document.createElement('div');
+modal.className = 'fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50';
+// Create modal content
+modal.innerHTML = `
+<div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+<div class="text-center mb-4">
+<div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+<i class="ri-check-line text-green-500 text-3xl"></i>
+</div>
+<h3 class="text-xl font-semibold">Order Placed Successfully!</h3>
+<p class="text-sm text-gray-600 mt-1">Order #${order.orderNumber}</p>
+</div>
+<div class="mb-6">
+<p class="text-sm text-gray-600 text-center">Thank you for your order. We'll prepare your BBQ items and deliver them to you soon.</p>
+</div>
+<div class="mb-6">
+<h4 class="text-sm font-medium mb-2">Order Details</h4>
+<div class="text-sm">
+<p><span class="text-gray-600">Name:</span> ${order.customer.name}</p>
+<p><span class="text-gray-600">Phone:</span> ${order.customer.phone}</p>
+<p><span class="text-gray-600">Address:</span> ${order.customer.address}</p>
+<p><span class="text-gray-600">Payment Method:</span> ${order.payment === 'cash' ? 'Cash on Delivery' : 'Online Payment'}</p>
+<p><span class="text-gray-600">Total Amount:</span> ${order.total}</p>
+</div>
+</div>
+<button class="close-confirmation w-full py-3 bg-primary text-white rounded-lg font-medium !rounded-button whitespace-nowrap">
+Continue Shopping
+</button>
+</div>
+`;
+// Add modal to body
+document.body.appendChild(modal);
+// Add event listeners
+modal.querySelector('.close-confirmation').addEventListener('click', () => {
+document.body.removeChild(modal);
+// Clear cart
+clearCart();
+});
+}
+// Clear cart after order
+function clearCart() {
+  // Remove cart items
+  const cartItems = document.querySelectorAll('.cart-panel .cart-item');
+  cartItems.forEach(item => {
+    item.remove();
+  });
+  
+  // Update cart count
+  const cartCount = document.querySelector('#cart-toggle span');
+  const mobileCartCount = document.querySelector('#mobile-cart-toggle span');
+  cartCount.textContent = '0';
+  mobileCartCount.textContent = '0';
+  
+  // Update totals
+  document.getElementById('cart-subtotal').textContent = '₹0';
+  document.getElementById('cart-total').textContent = '₹40';
+  
+  // Close cart panel
+  cartPanel.classList.remove('open');
+}
+// Show notification
+function showNotification(message, type = 'success') {
+const notification = document.createElement('div');
+notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white`;
+notification.innerHTML = message;
+document.body.appendChild(notification);
+setTimeout(() => {
+notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+setTimeout(() => {
+document.body.removeChild(notification);
+}, 300);
+}, 3000);
+}
+// Admin Order Management
+// Create a simple admin panel to view orders (normally this would be a separate page with authentication)
+document.addEventListener('keydown', function(e) {
+// Press Ctrl+Shift+A to open admin panel (just for demo purposes)
+if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+showAdminPanel();
+}
+});
+function showAdminPanel() {
+// Get orders from localStorage
+const orders = JSON.parse(localStorage.getItem('bbqOrders')) || [];
+// Create modal container
+const modal = document.createElement('div');
+modal.className = 'fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50';
+// Create modal content
+let ordersHtml = '';
+if (orders.length === 0) {
+ordersHtml = '<p class="text-center text-gray-500 py-4">No orders found</p>';
+} else {
+ordersHtml = orders.map((order, index) => `
+<div class="border border-gray-200 rounded-lg p-4 mb-4">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="font-medium">${order.orderNumber}</h4>
+<p class="text-xs text-gray-500">${order.orderDate}</p>
+</div>
+<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Pending</span>
+</div>
+<div class="mb-3">
+<p class="text-sm"><span class="text-gray-600">Customer:</span> ${order.customer.name}</p>
+<p class="text-sm"><span class="text-gray-600">Phone:</span> ${order.customer.phone}</p>
+<p class="text-sm"><span class="text-gray-600">Address:</span> ${order.customer.address}</p>
+${order.customer.instructions ? `<p class="text-sm"><span class="text-gray-600">Instructions:</span> ${order.customer.instructions}</p>` : ''}
+</div>
+<div class="mb-3">
+<h5 class="text-sm font-medium mb-1">Order Items:</h5>
+<ul class="text-sm space-y-1">
+${order.items.map(item => `
+<li>${item.title} (${item.weight}) x ${item.quantity} - ${item.price}</li>
+`).join('')}
+</ul>
+</div>
+<div class="flex justify-between items-center">
+<p class="text-sm font-medium">Total: ${order.total}</p>
+<div class="flex space-x-2">
+<button class="px-3 py-1 bg-green-500 text-white text-xs rounded !rounded-button whitespace-nowrap" onclick="updateOrderStatus(${index}, 'completed')">
+Complete
+</button>
+<button class="px-3 py-1 bg-red-500 text-white text-xs rounded !rounded-button whitespace-nowrap" onclick="updateOrderStatus(${index}, 'cancelled')">
+Cancel
+</button>
+</div>
+</div>
+</div>
+`).join('');
+}
+modal.innerHTML = `
+<div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-semibold">Admin - Order Management</h3>
+<button class="close-modal w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200">
+<i class="ri-close-line"></i>
+</button>
+</div>
+<div class="orders-container">
+${ordersHtml}
+</div>
+</div>
+`;
+// Add modal to body
+document.body.appendChild(modal);
+// Add event listeners
+modal.querySelector('.close-modal').addEventListener('click', () => {
+document.body.removeChild(modal);
+});
+// Add global function for order status updates
+window.updateOrderStatus = function(index, status) {
+const orders = JSON.parse(localStorage.getItem('bbqOrders')) || [];
+orders[index].status = status;
+localStorage.setItem('bbqOrders', JSON.stringify(orders));
+// Update UI
+const statusElement = modal.querySelectorAll('.orders-container .border.border-gray-200 span')[index];
+if (status === 'completed') {
+statusElement.className = 'px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full';
+statusElement.textContent = 'Completed';
+} else if (status === 'cancelled') {
+statusElement.className = 'px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full';
+statusElement.textContent = 'Cancelled';
+}
+};
+}
+</script>
+</body>
+</html>
